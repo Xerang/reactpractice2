@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
+//import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-const myElement = <h1>I Love JSX!</h1>; // JSX
+const myElement = <div style={{backgroundColor: "red"}}>I Love JSX!</div>; // JSX
 const myElement1 = React.createElement('h1', {}, 'I do not use JSX!');
-const myElement2 = <h1>React is {5 + 5} times better with JSX</h1>;
+const myElement2 = <div style={{color: "pink"}}>React is {5 + 5} times better with JSX</div>;
 
 let temp_number = 10;
 let temp_text = "nono";
