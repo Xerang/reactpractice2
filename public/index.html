@@ -1,43 +1,184 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[AJAX CRUD Version] 수강 과목 관리</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    
+</head>
+<body>
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+    <header>
+        <h1 style="text-align: center;">수강 과목 관리</h1>
+    </header>
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+    <h3>목록</h3>
+    <div id="div_list"></div>
+    <button id="btn_list">목록 보기</button>
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-  </body>
+    <hr>
+
+    <h3>데이터 관리</h3>
+    ID (수정/삭제/조회용): <input type="text" id="input_id" size="5" />
+    <br/>
+    과목명: <input type="text" id="input_subject" />
+    교수명: <input type="text" id="input_professor" />
+    학점: <input type="number" id="input_credits" style="width: 60px;" />
+    학기: <input type="text" id="input_semester" placeholder="20XX-X" size="10" />
+    <br/><br/>
+
+    <button id="btn_add">입력하기</button>
+    <button id="btn_update">수정하기</button>
+    <button id="btn_delete">삭제하기</button>
+    <button id="btn_detail">ID로 조회하기</button>
+
+
+    <script>
+        $(function(){
+
+            // 목록 보기
+            $("#btn_list").click(function(){
+                const xhr = new XMLHttpRequest();
+                xhr.open("GET", "https://6915405884e8bd126af939b5.mockapi.io/users");
+                xhr.setRequestHeader("content-type", "application/json");
+                xhr.send();
+
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        const courses = JSON.parse(xhr.response);
+                        $("#div_list").html(""); // 목록 초기화
+                        
+                        // my_data.json에 맞게 항목(key) 이름 변경
+                        courses.forEach(function(course){
+                            $("#div_list").append(
+                                `<div>${course.id} : ${course.subject} (Professor ${course.professor}, ${course.credits}학점)</div>`
+                            );
+                        });
+                    } else {
+                        console.log(xhr.status, xhr.statusText);
+                    }
+                }
+            });
+
+            // 추가하기
+            $("#btn_add").click(function(){
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", "https://6915405884e8bd126af939b5.mockapi.io/users");
+                xhr.setRequestHeader("content-type", "application/json");
+                
+                // my_data.json에 맞게 전송할 데이터(data) 변경
+                let data = { 
+                    subject: $("#input_subject").val(), 
+                    professor: $("#input_professor").val(),
+                    credits: parseInt($("#input_credits").val()),
+                    semester: $("#input_semester").val()
+                };
+                xhr.send(JSON.stringify(data)); //
+
+                xhr.onload = () => {
+                    // 4. json-server는 POST 성공 시 201을 반환합니다. (200 OK -> 201 Created)
+                    if (xhr.status === 201) { 
+                        let res = JSON.parse(xhr.response);
+                        alert("추가 완료: " + JSON.stringify(res));
+                        $("#btn_list").click(); // 목록 새로고침
+                    } else {
+                        console.log(xhr.status, xhr.statusText);
+                    }
+                }
+            });
+
+            // 수정하기
+            $("#btn_update").click(function(){
+                if (!$("#input_id").val()) {
+                    alert("수정할 ID를 입력하세요.");
+                    return;
+                }
+
+                const xhr = new XMLHttpRequest();
+                xhr.open("PUT", "https://6915405884e8bd126af939b5.mockapi.io/users/" + $("#input_id").val());
+                xhr.setRequestHeader("content-type", "application/json");
+
+                // 5. my_data.json에 맞게 수정할 데이터(data) 변경
+                let data = { 
+                    subject: $("#input_subject").val(), 
+                    professor: $("#input_professor").val(),
+                    credits: parseInt($("#input_credits").val()),
+                    semester: $("#input_semester").val()
+                };
+                xhr.send(JSON.stringify(data));
+
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        let res = JSON.parse(xhr.response);
+                        alert("수정 완료: " + JSON.stringify(res));
+                        $("#btn_list").click(); // 목록 새로고침
+                    } else {
+                        console.log(xhr.status, xhr.statusText);
+                    }
+                }
+            });
+
+            // 삭제하기
+            $("#btn_delete").click(function(){
+                const deleteId = $("#input_id").val();//아래에서 추가적으로 사용하기 편하게 const 함수로 선언
+                if (!deleteId) {
+                    alert("삭제할 ID를 입력하세요.");
+                    return;
+                }
+                
+                if (!confirm(`정말로 ID ${deleteId}번 과목을 삭제하시겠습니까?`)) {
+                    return;
+                }
+
+                const xhr = new XMLHttpRequest();
+                xhr.open("DELETE", "https://6915405884e8bd126af939b5.mockapi.io/users/" + $("#input_id").val());
+                xhr.setRequestHeader("content-type", "application/json");
+                xhr.send();
+
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        alert("삭제 완료.");
+                        $("#btn_list").click(); // 목록 새로고침
+                    } else {
+                        console.log(xhr.status, xhr.statusText);
+                    }
+                }
+            });
+
+            // ID로 조회하기
+            $("#btn_detail").click(function(){
+                if (!$("#input_id").val()) {
+                    alert("조회할 ID를 입력하세요.");
+                    return;
+                }
+
+                const xhr = new XMLHttpRequest();
+                xhr.open("GET", "https://6915405884e8bd126af939b5.mockapi.io/users/" + $("#input_id").val());
+                xhr.setRequestHeader("content-type", "application/json");
+                xhr.send();
+
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        let res = JSON.parse(xhr.response);
+                        
+                        //my_data.json에 맞게 조회된 데이터 입력창에 채우기
+                        $("#input_subject").val(res.subject);
+                        $("#input_professor").val(res.professor);
+                        $("#input_credits").val(res.credits);
+                        $("#input_semester").val(res.semester);
+                        
+                        alert("조회 완료: " + JSON.stringify(res));
+                    } else {
+                        console.log(xhr.status, xhr.statusText);
+                    }
+                }
+            });
+            
+            // 페이지 로드 시 자동으로 목록 1회 호출
+            $("#btn_list").click();
+        });
+    </script>
+</body>
 </html>
