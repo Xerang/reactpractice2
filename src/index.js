@@ -17,6 +17,18 @@ if(temp_number>10){
 }
 const myElement3 = <div>{temp_number} === this number? : {temp_text}</div>;
 const myElement4 = <div>{temp_number} === {(temp_number > 10) ? "over 10" : "not over 10"}</div>
+const myElement5 = 
+(<ul>
+  <li style={{color: "red"}}>red</li>
+  <li style={{color: "orange"}}>orange</li>
+  <li style={{color: "yellow"}}>yellow</li>
+  <li style={{color: "green"}}>green</li>
+  <li style={{color: "blue"}}>blue</li>
+  <li style={{color: "indigo"}}>indigo</li>
+  <li style={{color: "purple"}}>purple</li>
+</ul>)
+const myElement6 = <input type="text" placeholder='Hello' />;
+const myElement7 = <input type="number" placeholder='10' />;
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -26,6 +38,9 @@ root.render(
    {myElement2}
    {myElement3}
    {myElement4}
+   {myElement5}
+   {myElement6}
+   {myElement7}
   </>
 );
 //<></>로 여러 개 element 표시 가능
